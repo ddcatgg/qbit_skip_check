@@ -42,9 +42,21 @@
 - `QB_PASSWD`: qBittorrent Web UI 的密码
 - `QB_BACKUP_PATH`: qBittorrent 种子备份路径 (默认: `%LOCALAPPDATA%\qBittorrent\BT_backup`)
 
+随后，在设置好的环境中运行 `main.py` 即可：
+
+```bash
+python main.py
+```
+
+如果有种子添加失败，对应的种子文件会保存在 `./temp` 目录下，可以手动处理。
+
+## 其他
+
 项目提供了 `run.example.bat` 脚本，用于快速设置环境变量并启动，可按需修改取用。
 
 程序入口为 `main.py`，tests 目录仅用于测试 API 调用方式，非标准的 pytest 测试，可忽略。
+
+仓库中的 `torrent_move.py` 为一个简单的图形化脚本，可独立运行。用于在手动移动种子位置后，为种子设定新路径并跳过校验。（详见 #1，注意脚本自身并不移动文件，仅做路径处理）
 
 ## 致谢
 一定程度上参考了此项目： [Qbittorrent 强制跳过校验 python 脚本](https://github.com/Hugo7650/qb_skip_hash_check_script)，感谢各位作者的付出。
