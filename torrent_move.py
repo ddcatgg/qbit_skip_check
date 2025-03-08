@@ -32,17 +32,17 @@ def qb_login(host: str, port: int, username: str, password: str) -> qbittorrenta
     return qbc
 
 
-# 获取种子信息并按文件大小降序排列
+# 获取种子信息并按文件大小降序排列, 其次以保存路径、名称升序排列
 def get_torrents(client):
     _torrents = client.torrents_info()
-    return sorted(_torrents, key=lambda x: x.size, reverse=True)
+    return sorted(_torrents, key=lambda x: (-x.size, x.save_path, x.name))
 
 
 # 更新种子列表
 def update_torrent_list(_torrents, search_text=""):
-    for item in tree.get_children():
+    for item in tree.get_children():  # 载入新的之前先清空
         tree.delete(item)
-    for torrent in _torrents:
+    for index, torrent in enumerate(_torrents):
         if search_text.lower() in torrent.name.lower():
             size = torrent.size
             if size >= 1 << 30:
@@ -51,7 +51,15 @@ def update_torrent_list(_torrents, search_text=""):
                 size_str = f"{size / (1 << 20):.2f} MB"
             else:
                 size_str = f"{size / (1 << 10):.2f} KB"
-            tree.insert("", "end", values=(torrent.name, size_str, torrent.save_path, torrent.state, torrent.hash))
+            # 根据行索引设置背景色
+            if index % 2 == 0:
+                tag = 'even_row'  # 给偶数行打上tag
+            else:
+                tag = ''
+            # 插入数据时，新增一个空字符串作为选择列的初始值
+            tree.insert("", "end",
+                        values=("", torrent.name, size_str, torrent.save_path, torrent.state, torrent.hash),
+                        tags=tag)
 
 
 # 搜索功能
@@ -70,24 +78,31 @@ def update_selected_count():
 def toggle_check(event):
     item = tree.identify_row(event.y)
     if item:
-        tags = list(tree.item(item, "tags"))
-        if 'checked' in tags:
-            tags.remove('checked')
-        else:
-            tags.append('checked')
-        tree.item(item, tags=[str(tag) for tag in tags])
-        update_selected_count()
+        col = tree.identify_column(event.x)
+        # 只处理第一列的点击事件
+        if col == "#0" or col == "#1":
+            tags = list(tree.item(item, "tags"))
+            if 'checked' in tags:  # 原先已选中的情况
+                tags.remove('checked')
+                tree.set(item, "Selected", "")
+            else:  # 原先未选中的情况
+                tags.append('checked')
+                tree.set(item, "Selected", "     ✔")
+            tree.item(item, tags=[str(tag) for tag in tags])
+            update_selected_count()
 
 
 def toggle_select_all():
     global all_selected
-    if all_selected:
+    if all_selected:  # 原先已选中的情况
         for item in tree.get_children():
             tree.item(item, tags=[])
+            tree.set(item, "Selected", "")  # 更新选择列的值为空字符串
         toggle_button.config(text="Select All")
-    else:
+    else:  # 原先未选中的情况
         for item in tree.get_children():
             tree.item(item, tags=['checked'])
+            tree.set(item, "Selected", "     ✔")  # 更新选择列的值为 "✔"
         toggle_button.config(text="Deselect All")
     all_selected = not all_selected
     update_selected_count()
@@ -103,9 +118,9 @@ def set_new_path():
         selected_hashes = [tree.item(item, 'values')[columns.index("Torrent Hash")] for item in selected_items]
         if not selected_hashes:
             Avalon.warning("No item selected!")
-            return # 防止传入空列表，导致意外选中全部种子
+            return  # 防止传入空列表，导致意外选中全部种子
 
-        selected_torrents = qbt_client.torrents_info(torrent_hashes=selected_hashes) # 根据 hash 去获取选种子信息
+        selected_torrents = qbt_client.torrents_info(torrent_hashes=selected_hashes)  # 根据 hash 去获取选种子信息
 
         ###
         # 开始为种子设定新的保存路径，并跳过校验
@@ -155,7 +170,8 @@ def set_new_path():
                     # 检查 tracker 是否为空, 若为空则添加
                     if not qbt_client.torrents.trackers(torrent['hash']):
                         qbt_client.torrents.add_trackers(torrent['hash'], torrent['tracker'])
-                        Avalon.warning(f"种子：{torrent['name']} 的 tracker 列表为空，已添加！ Tracker：{torrent['tracker']}")
+                        Avalon.warning(
+                            f"种子：{torrent['name']} 的 tracker 列表为空，已添加！ Tracker：{torrent['tracker']}")
                 else:
                     Avalon.warning(f"种子：{torrent['name']} 添加失败！ Hash：{torrent['hash']}")
 
@@ -226,13 +242,15 @@ if __name__ == '__main__':
     style = ttk.Style()
     style.map('Treeview', background=[('selected', 'lightgray')], foreground=[("selected", "black")])  # 当前选中行的背景、前景色
 
-    columns = ("Name", "Size", "Save Path", "State", "Torrent Hash")
+    columns = ("Selected", "Name", "Size", "Save Path", "State", "Torrent Hash")
     tree = ttk.Treeview(frame, columns=columns, show="headings")
+    tree.heading("Selected", text="Selected")
     tree.heading("Name", text="Name")
     tree.heading("Size", text="Size")
     tree.heading("Save Path", text="Save Path")
     tree.heading("State", text="State")
     tree.heading("Torrent Hash", text="Torrent Hash")
+    tree.column("Selected", width=60, stretch=False)
     tree.column("Name", width=400, stretch=False)
     tree.column("Size", width=100, stretch=False)
     tree.column("Save Path", width=200, stretch=False)
@@ -240,6 +258,7 @@ if __name__ == '__main__':
     tree.column("Torrent Hash", width=300, stretch=False)
 
     tree.tag_configure('checked', background='#ccff99')  # 添加选中后的样式
+    tree.tag_configure('even_row', background='#f0f0f0')  # 为偶数行设置浅灰色背景
     tree.bind("<Button-1>", toggle_check)
 
     # 创建滚动条
