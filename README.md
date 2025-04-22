@@ -42,6 +42,8 @@
 - `QB_PASSWD`: qBittorrent Web UI 的密码
 - `QB_BACKUP_PATH`: qBittorrent 种子备份路径 (默认: `%LOCALAPPDATA%\qBittorrent\BT_backup`)
 
+> 目前也支持建立一个 .env 文件来设置以上环境变量，该文件不需要纳入版本库。
+
 随后，在设置好的环境中运行 `main.py` 即可：
 
 ```bash
@@ -51,8 +53,6 @@ python main.py
 如果有种子添加失败，对应的种子文件会保存在 `./temp` 目录下，可以手动处理。
 
 ## 其他
-
-项目提供了 `run.example.bat` 脚本，用于快速设置环境变量并启动，可按需修改取用。
 
 程序入口为 `main.py`，tests 目录仅用于测试 API 调用方式，非标准的 pytest 测试，可忽略。
 

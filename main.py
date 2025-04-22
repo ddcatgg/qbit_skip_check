@@ -7,14 +7,17 @@ from os.path import expandvars
 
 import qbittorrentapi
 from packaging.version import Version
+import dotenv
 
 from utils.avalon import Avalon
+
+dotenv.load_dotenv()
 
 qb_host = str(getenv("QB_HOST", "http://127.0.0.1"))
 qb_port = int(getenv("QB_PORT", 8080))
 qb_username = str(getenv("QB_USERNAME", ""))
 qb_passwd = str(getenv("QB_PASSWD", ""))
-qb_backup_path = str(getenv("QB_BACKUP_PATH", os.path.join(expandvars("%LOCALAPPDATA%"), "qBittorrent\BT_backup")))
+qb_backup_path = str(expandvars(getenv("QB_BACKUP_PATH", r"%LOCALAPPDATA%\qBittorrent\BT_backup")))
 
 
 def qb_login(host: str, port: int, username: str, password: str) -> qbittorrentapi.Client:
@@ -49,11 +52,13 @@ if __name__ == '__main__':
         else:
             sys.exit(0)
 
-    torrents = qbt_client.torrents.info()
-    Avalon.info(f"读取到的种子数为：{len(torrents)}, 开始处理...")
+    # 筛选标签为"IYUU自动辅种"且状态为暂停的种子
+    target_torrents = qbt_client.torrents.info(
+        status_filter='paused',  # 筛选暂停状态的种子
+        tag='IYUU自动辅种'        # 筛选标签
+    )
 
-    checking_torrents = [torrent for torrent in torrents if torrent['state'] in ["checkingDL", "checkingUP"]]
-    Avalon.info(f"正在校验的种子数为：{len(checking_torrents)}")
+    Avalon.info(f"找到符合条件（IYUU自动辅种 + 暂停状态）的种子数：{len(target_torrents)}，开始处理...")
 
     # BACKUP 旧版 API
     if not USE_NEW_EXPORT_API:
@@ -61,7 +66,8 @@ if __name__ == '__main__':
         shutil.copytree(qb_backup_path, "./temp_BT_Backup")
         Avalon.info(f"已备份种子文件夹：{qb_backup_path} 到当前目录")
 
-    for torrent in checking_torrents:
+    # 遍历目标种子
+    for torrent in target_torrents:
         torrent_filename = torrent['hash'] + '.torrent'
         if USE_NEW_EXPORT_API:
             with open(f"./temp/{torrent_filename}", 'wb') as f:
