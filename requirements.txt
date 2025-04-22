@@ -1,4 +1,5 @@
-colorama==0.4.6
-packaging==24.2
-qbittorrent_api==2024.9.67
-Requests==2.32.3
+colorama~=0.4.6
+packaging~=24.2
+qbittorrent_api~=2024.9.67
+Requests~=2.32.3
+python-dotenv~=1.1.0

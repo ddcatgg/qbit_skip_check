@@ -8,10 +8,13 @@ from os import getenv, mkdir
 from os.path import expandvars
 from tkinter import ttk
 
+import dotenv
 import qbittorrentapi
 from packaging.version import Version
 
 from utils.avalon import Avalon
+
+dotenv.load_dotenv()
 
 qb_host = str(getenv("QB_HOST", "http://127.0.0.1"))
 qb_port = int(getenv("QB_PORT", 8080))
