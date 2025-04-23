@@ -34,7 +34,8 @@ def qb_login(host: str, port: int, username: str, password: str) -> qbittorrenta
 
 if __name__ == '__main__':
     os.chdir(sys.path[0])
-    mkdir("temp") if not os.path.exists("temp") else None
+    if not os.path.exists("temp"):
+        mkdir("temp")
 
     if not all([qb_host, qb_port, qb_username, qb_passwd]):
         Avalon.warning("请检查环境变量是否配置正确！")

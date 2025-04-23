@@ -1,9 +1,13 @@
 ## 简介
-此项目用于快速跳过 qBittorrent 中正在校验的种子文件。尤其适用于 IYUU 自动辅种后的情形。
+
+源自[这个项目](https://github.com/hui-shao/qbit_skip_check)，经过修改，现在**仅适用于 IYUUPlus 自动辅种并加标签的场景**。
+
+当在 IYUUPlus 的自动辅种任务设置里勾选了“标记标签” ，那么自动辅种成功后，种子在 qBittorrent 中的状态会是"paused"（暂停），如果此时点击“继续”就会开始漫长的校验，这个脚本用于跳过校验直接开始辅种。
 
 主要思路为：删除种子，重新添加，并选择“跳过哈希校验”，此时 qB 会仅仅检查文件是否存在，而不会再次校验文件的完整性。
 
 ## 注意
+
 1. 请确保你了解“跳过校验”意味着什么，仅在确定文件完整时使用！也就是说，如果是由于“下载过程意外中断”引起的确有必要的校验，则不建议使用此脚本。
 2. 主要适用于 Windows 平台，其他平台请自行对路径做一些修改。
 3. 如果你觉得有必要，在运行前，请备份 qB 的种子目录。（在某些情况下，程序也会将其备份到当前目录）
@@ -14,17 +18,17 @@
 
 1. 创建虚拟环境：
     ```bash
-    python -m venv venv
+    python -m venv .venv
     ```
 
 2. 激活虚拟环境：
     - Windows:
         ```bash
-        .\venv\Scripts\activate
+        .venv\Scripts\activate
         ```
     - Unix 或 MacOS:
         ```bash
-        source venv/bin/activate
+        source .venv/bin/activate
         ```
 
 3. 安装依赖：
@@ -42,13 +46,23 @@
 - `QB_PASSWD`: qBittorrent Web UI 的密码
 - `QB_BACKUP_PATH`: qBittorrent 种子备份路径 (默认: `%LOCALAPPDATA%\qBittorrent\BT_backup`)
 
-> 目前也支持建立一个 .env 文件来设置以上环境变量，该文件不需要纳入版本库。
+可以建立一个 .env 文件来设置以上环境变量：
+
+```
+QB_HOST=http://127.0.0.1
+QB_PORT=8080
+QB_USERNAME=admin
+QB_PASSWD=your_password
+QB_BACKUP_PATH=%LOCALAPPDATA%\qBittorrent\BT_backup
+```
 
 随后，在设置好的环境中运行 `main.py` 即可：
 
 ```bash
 python main.py
 ```
+
+或者双击执行 run.bat 。
 
 如果有种子添加失败，对应的种子文件会保存在 `./temp` 目录下，可以手动处理。
 
