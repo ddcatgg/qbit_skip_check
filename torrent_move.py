@@ -8,16 +8,19 @@ from os import getenv, mkdir
 from os.path import expandvars
 from tkinter import ttk
 
+import dotenv
 import qbittorrentapi
 from packaging.version import Version
 
 from utils.avalon import Avalon
 
+dotenv.load_dotenv()
+
 qb_host = str(getenv("QB_HOST", "http://127.0.0.1"))
 qb_port = int(getenv("QB_PORT", 8080))
 qb_username = str(getenv("QB_USERNAME", ""))
 qb_passwd = str(getenv("QB_PASSWD", ""))
-qb_backup_path = str(getenv("QB_BACKUP_PATH", os.path.join(expandvars("%LOCALAPPDATA%"), "qBittorrent\BT_backup")))
+qb_backup_path = str(expandvars(getenv("QB_BACKUP_PATH", r"%LOCALAPPDATA%\qBittorrent\BT_backup")))
 
 
 def qb_login(host: str, port: int, username: str, password: str) -> qbittorrentapi.Client:

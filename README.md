@@ -46,7 +46,7 @@
 - `QB_PASSWD`: qBittorrent Web UI 的密码
 - `QB_BACKUP_PATH`: qBittorrent 种子备份路径 (默认: `%LOCALAPPDATA%\qBittorrent\BT_backup`)
 
-可以建立一个 .env 文件来设置以上环境变量：
+可以建立一个 .env 文件来设置以上环境变量（参照 `env.example`）：
 
 ```
 QB_HOST=http://127.0.0.1
