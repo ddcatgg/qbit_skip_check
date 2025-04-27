@@ -73,7 +73,7 @@ class QBittorrentSkipCheck:
         qbc = qbittorrentapi.Client(**conn_info)
         try:
             qbc.auth_log_in()
-            Avalon.info(f"连接成功！")
+            Avalon.info(f"{self.config.host} 连接成功！")
             Avalon.info(f"qBittorrent: {qbc.app.version}")
             Avalon.info(f"qBittorrent Web API: {qbc.app.web_api_version}")
             return qbc
