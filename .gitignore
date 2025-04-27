@@ -168,4 +168,4 @@ cython_debug/
 # Custom
 temp*/
 run.bat
-
+.env*
