@@ -210,7 +210,8 @@ class QBittorrentSkipCheck:
         """重新添加种子"""
         add_params = dict(
             torrent_files=torrent_filepath,
-            save_path=str(torrent['save_path']),
+            save_path=torrent['save_path'],
+            content_path=torrent['content_path'],
             is_skip_checking=True,
             category=torrent['category'],
             tags=torrent['tags'],
@@ -309,7 +310,7 @@ def _load_environment_variables(env_file_path):
 def main():
     # 解析命令行参数
     parser = argparse.ArgumentParser(description="IYUU辅种免验助手")
-    parser.add_argument("env_file", type=str, default=".env", help="指定要加载的环境变量文件路径 (默认为.env)")
+    parser.add_argument("-e", "--env-file", type=str, default=".env", help="指定要加载的环境变量文件路径 (默认为.env)")
     args = parser.parse_args()
 
     # 加载环境变量
