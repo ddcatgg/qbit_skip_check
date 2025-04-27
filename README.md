@@ -43,7 +43,7 @@
 - `QB_HOST`: qBittorrent Web UI 的主机地址 (默认: `http://127.0.0.1`)，如果地址包含了端口，则会忽略`QB_PORT`。
 - `QB_PORT`: qBittorrent Web UI 的端口 (默认: `8080`)
 - `QB_USERNAME`: qBittorrent Web UI 的用户名
-- `QB_PASSWD`: qBittorrent Web UI 的密码
+- `QB_PASSWORD`: qBittorrent Web UI 的密码
 - `QB_BACKUP_PATH`: qBittorrent 种子备份路径 (默认: `%LOCALAPPDATA%\qBittorrent\BT_backup`)
 
 可以建立一个 .env 文件来设置以上环境变量（参照 `env.example`）：
@@ -52,7 +52,7 @@
 QB_HOST=http://127.0.0.1
 QB_PORT=8080
 QB_USERNAME=admin
-QB_PASSWD=your_password
+QB_PASSWORD=your_password
 QB_BACKUP_PATH=%LOCALAPPDATA%\qBittorrent\BT_backup
 ```
 
