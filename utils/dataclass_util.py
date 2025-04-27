@@ -5,31 +5,14 @@ from typing import Type, TypeVar, Callable
 T = TypeVar('T')  # 定义一个泛型类型变量，用于类型提示
 
 
-# def expandvars_fields(*field_names: str) -> Callable[[Type[T]], Type[T]]:
-#     """
-#     装饰器：自动展开指定字段中的环境变量，比如字段中包含 "%LOCALAPPDATA%" 这样的环境变量。
-#
-#     :param field_names: 需要展开环境变量的字段名
-#     :return: 装饰后的dataclass类
-#     """
-#
-#     def decorator(cls: Type[T]) -> Type[T]:
-#         original_post_init = getattr(cls, '__post_init__', None)
-#
-#         def __post_init__(self):
-#             if original_post_init:
-#                 original_post_init(self)
-#             for field_name in field_names:
-#                 value = getattr(self, field_name)
-#                 if value:
-#                     setattr(self, field_name, os.path.expandvars(value))
-#
-#         setattr(cls, '__post_init__', __post_init__)
-#         return cls
-#
-#     return decorator
-
 def expandvars_fields(*field_names: str) -> Callable[[Type[T]], Type[T]]:
+    """
+    装饰器：自动展开指定字段中的环境变量，比如字段中包含 "%LOCALAPPDATA%" 这样的环境变量。
+
+    :param field_names: 需要展开环境变量的字段名
+    :return: 装饰后的dataclass类
+    """
+
     def decorator(cls: Type[T]) -> Type[T]:
         original_init = cls.__init__
 
